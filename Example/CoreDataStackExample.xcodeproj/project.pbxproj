@@ -13,6 +13,7 @@
 		4ACD12721FB1BEA8006E4D2F /* CoreDataStackExample.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4ACD12701FB1BEA8006E4D2F /* CoreDataStackExample.xcdatamodeld */; };
 		4ACD12741FB1BEA8006E4D2F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4ACD12731FB1BEA8006E4D2F /* Assets.xcassets */; };
 		4ACD12771FB1BEA8006E4D2F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4ACD12751FB1BEA8006E4D2F /* LaunchScreen.storyboard */; };
+		4ACD12821FB23A2D006E4D2F /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ACD127F1FB23A2D006E4D2F /* CoreDataStack.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		4ACD12731FB1BEA8006E4D2F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4ACD12761FB1BEA8006E4D2F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4ACD12781FB1BEA8006E4D2F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4ACD127F1FB23A2D006E4D2F /* CoreDataStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,14 +59,24 @@
 			isa = PBXGroup;
 			children = (
 				4ACD12691FB1BEA8006E4D2F /* AppDelegate.swift */,
-				4ACD126B1FB1BEA8006E4D2F /* ViewController.swift */,
-				4ACD126D1FB1BEA8006E4D2F /* Main.storyboard */,
-				4ACD12731FB1BEA8006E4D2F /* Assets.xcassets */,
-				4ACD12751FB1BEA8006E4D2F /* LaunchScreen.storyboard */,
 				4ACD12781FB1BEA8006E4D2F /* Info.plist */,
 				4ACD12701FB1BEA8006E4D2F /* CoreDataStackExample.xcdatamodeld */,
+				4ACD126B1FB1BEA8006E4D2F /* ViewController.swift */,
+				4ACD12731FB1BEA8006E4D2F /* Assets.xcassets */,
+				4ACD126D1FB1BEA8006E4D2F /* Main.storyboard */,
+				4ACD12751FB1BEA8006E4D2F /* LaunchScreen.storyboard */,
+				4ACD127E1FB23A2D006E4D2F /* CoreDataStack */,
 			);
 			path = CoreDataStackExample;
+			sourceTree = "<group>";
+		};
+		4ACD127E1FB23A2D006E4D2F /* CoreDataStack */ = {
+			isa = PBXGroup;
+			children = (
+				4ACD127F1FB23A2D006E4D2F /* CoreDataStack.swift */,
+			);
+			name = CoreDataStack;
+			path = ../../CoreDataStack;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -142,6 +154,7 @@
 				4ACD126C1FB1BEA8006E4D2F /* ViewController.swift in Sources */,
 				4ACD12721FB1BEA8006E4D2F /* CoreDataStackExample.xcdatamodeld in Sources */,
 				4ACD126A1FB1BEA8006E4D2F /* AppDelegate.swift in Sources */,
+				4ACD12821FB23A2D006E4D2F /* CoreDataStack.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

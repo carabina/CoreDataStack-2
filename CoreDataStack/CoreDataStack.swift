@@ -19,12 +19,38 @@ public class CoreDataStack {
     /**
      * Debugging mode state
      */
-    private(set) public static var debugMode: Bool = false
+    public static var debugMode: Bool = false
     
     /**
      * Name of the CoreData Stack
      */
     private(set) public var stackName: String
+    
+    /**
+     * iOS 10.0 addition: Persistent Container (all in one!)
+     */
+    private(set) public lazy var persistentContainer: NSPersistentContainer = {
+        /*
+         The persistent container for the application. This implementation
+         creates and returns a container, having loaded the store for the
+         application to it. This property is optional since there are legitimate
+         error conditions that could cause the creation of the store to fail.
+         */
+        let container = NSPersistentContainer(name: self.stackName)
+        container.loadPersistentStores { (storeDescription, error) in
+            guard let error = error as NSError? else { return }
+            /*
+             Typical reasons for an error here include:
+             * The parent directory does not exist, cannot be created, or disallows writing.
+             * The persistent store is not accessible, due to permissions or data protection when the device is locked.
+             * The device is out of space.
+             * The store could not be migrated to the current model version.
+             Check the error message to determine what the actual problem was.
+             */
+            fatalError("\n🗄 CoreDataStack --> Persistent Container failed: Error --> \(error), User Info --> \(error.userInfo)\n")
+        }
+        return container
+    }()
     
     /**
      * Constructor
@@ -35,79 +61,48 @@ public class CoreDataStack {
     }
     
     /**
-     * URLs
-     */
-    private(set) public lazy var applicationDocumentsDirectory: URL = {
-        let urls = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        return urls[urls.count-1]
-    }()
-    
-    /**
-     * Object Model
-     */
-    private(set) public lazy var managedObjectModel: NSManagedObjectModel = {
-        let modelURK = Bundle.main.url(forResource: self.stackName, withExtension: "momd")!
-        return NSManagedObjectModel(contentsOf: modelURK)!
-    }()
-    
-    /**
-     * Persistent Coordinator
-     */
-    private(set) public lazy var persistentStoreCoordinator: NSPersistentStoreCoordinator = {
-        
-        let coordinator = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
-        let url = self.applicationDocumentsDirectory.appendingPathComponent("\(self.stackName).sqlite")
-        
-        do {
-            try coordinator.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: url, options: nil)
-        } catch {
-            fatalError("\n🗄 CoreDataStack --> ⚠️ Couldn't load database: \(error)\n")
-        }
-        
-        return coordinator
-    }()
-    
-    /**
-     * Main Context
-     */
-    private(set) public lazy var managedObjectContext: NSManagedObjectContext = {
-        let coordinator = self.persistentStoreCoordinator
-        var managedObjectContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
-        managedObjectContext.persistentStoreCoordinator = coordinator
-        return managedObjectContext
-    }()
-    
-    /**
      *  managedObject(withEntityName:)
      *  @description        Creates an Entity
      *  @param entityName   Desired Entity's name
      *  @return             Managed Object itself
      */
-    open func managedObject(withEntityName entityName: String) -> NSManagedObject {
+    public func managedObject(withEntityName entityName: String) -> NSManagedObject {
         return NSManagedObject(
-            entity: managedObjectContext.persistentStoreCoordinator!.managedObjectModel.entitiesByName[entityName]!,
-            insertInto: managedObjectContext
+            entity: persistentContainer.managedObjectModel.entitiesByName[entityName]!,
+            insertInto: persistentContainer.viewContext
         )
     }
     
     /**
-     *  write(_:)
-     *  @description    Performs a block of changes & saves it
-     *  @param changes  Block of changes
+     *  write(andSave:changes:)
+     *  @description        Performs a block of changes & saves it
+     *  @param shouldSave   Tells to Persistent Container if it should be saved or no
+     *  @param changes      Block of changes
      */
-    open func write(andSave shouldSave: Bool = true, changes: @escaping () -> Void) throws {
+    public func write(andSave shouldSave: Bool = true, changes: @escaping () -> Void) throws {
         
         // Performs
         changes()
         
         // Saves
         guard shouldSave else { return }
-        guard managedObjectContext.hasChanges else {
-            print("\n🗄 CoreDataStack --> Context saved!\n")
+        try save()
+    }
+    
+    /**
+     *  save()
+     *  @description        Save changes to persistent container's view context
+     */
+    public func save() throws {
+        
+        let context = persistentContainer.viewContext
+        guard context.hasChanges else {
+            if CoreDataStack.debugMode { print("\n🗄 CoreDataStack --> Ignoring command, no changes applied...\n") }
             return
         }
+        
         do {
-            try managedObjectContext.save()
+            try context.save()
             if CoreDataStack.debugMode { print("\n🗄 CoreDataStack --> Context saved!\n") }
         } catch let error {
             if CoreDataStack.debugMode { print("\n🗄 CoreDataStack --> ⚠️ Saving task failed: \(error.localizedDescription)\n") }
