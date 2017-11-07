@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "FRCoreDataStack"
-  s.version      = "1.0.0"
+  s.version      = "1.0.1"
   s.summary      = "Abstraction of CoreData Stack."
 
   # This description is used to generate tags and improve search results.

@@ -17,21 +17,27 @@ import CoreData
 public class CoreDataStack {
     
     /**
+     * Debugging mode state
+     */
+    private(set) public static var debugMode: Bool = false
+    
+    /**
      * Name of the CoreData Stack
      */
-    fileprivate(set) public var stackName: String = "CoreData"
+    private(set) public var stackName: String
     
     /**
      * Constructor
      */
     init(stackName: String) {
+        assert(stackName != "", "stackName cannot be empty. Please provide your Mapping Model name.")
         self.stackName = stackName
     }
     
     /**
      * URLs
      */
-    public lazy var applicationDocumentsDirectory: URL = {
+    private(set) public lazy var applicationDocumentsDirectory: URL = {
         let urls = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         return urls[urls.count-1]
     }()
@@ -39,7 +45,7 @@ public class CoreDataStack {
     /**
      * Object Model
      */
-    public lazy var managedObjectModel: NSManagedObjectModel = {
+    private(set) public lazy var managedObjectModel: NSManagedObjectModel = {
         let modelURK = Bundle.main.url(forResource: self.stackName, withExtension: "momd")!
         return NSManagedObjectModel(contentsOf: modelURK)!
     }()
@@ -47,7 +53,7 @@ public class CoreDataStack {
     /**
      * Persistent Coordinator
      */
-    public lazy var persistentStoreCoordinator: NSPersistentStoreCoordinator = {
+    private(set) public lazy var persistentStoreCoordinator: NSPersistentStoreCoordinator = {
         
         let coordinator = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
         let url = self.applicationDocumentsDirectory.appendingPathComponent("\(self.stackName).sqlite")
@@ -64,7 +70,7 @@ public class CoreDataStack {
     /**
      * Main Context
      */
-    public lazy var managedObjectContext: NSManagedObjectContext = {
+    private(set) public lazy var managedObjectContext: NSManagedObjectContext = {
         let coordinator = self.persistentStoreCoordinator
         var managedObjectContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
         managedObjectContext.persistentStoreCoordinator = coordinator
@@ -77,7 +83,7 @@ public class CoreDataStack {
      *  @param entityName   Desired Entity's name
      *  @return             Managed Object itself
      */
-    func managedObject(withEntityName entityName: String) -> NSManagedObject {
+    open func managedObject(withEntityName entityName: String) -> NSManagedObject {
         return NSManagedObject(
             entity: managedObjectContext.persistentStoreCoordinator!.managedObjectModel.entitiesByName[entityName]!,
             insertInto: managedObjectContext
@@ -89,16 +95,19 @@ public class CoreDataStack {
      *  @description    Performs a block of changes & saves it
      *  @param changes  Block of changes
      */
-    func write(_ changes: @escaping () -> Void) {
+    open func write(andSave shouldSave: Bool = true, changes: @escaping () -> Void) throws {
         
         // Performs
         changes()
         
         // Saves
+        guard shouldSave else { return }
         do {
             try managedObjectContext.save()
+            if CoreDataStack.debugMode { print("CoreDataStack --> Context saved!") }
         } catch let error {
-            print("CoreDataStack --> ⚠️ Saving task failed: \(error.localizedDescription)")
+            if CoreDataStack.debugMode { print("CoreDataStack --> ⚠️ Saving task failed: \(error.localizedDescription)") }
+            throw error
         }
     }
     
