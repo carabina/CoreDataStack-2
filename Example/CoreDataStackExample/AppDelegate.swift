@@ -12,11 +12,14 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    var coreDataStack : CoreDataStack = CoreDataStack(stackName: "CoreDataStackExample")
-
+    private(set) lazy var coreDataStack : CoreDataStack = CoreDataStack(stackName: "CoreDataStackExample")
+    
+    // MARK: - 👽 Lifecycle Methods
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+        
         // Override point for customization after application launch.
         CoreDataStack.debugMode = true
+        
         return true
     }
 
@@ -43,5 +46,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Saves changes in the application's managed object context before the application terminates.
         try? coreDataStack.save()
     }
+}
+
+extension CoreDataStack {
+    var shared : CoreDataStack {
+        let app = UIApplication.shared
+        guard let delegate = app.delegate as? AppDelegate else {
+            fatalError("Couldn't load current AppDelegate.")
+        }
+        return delegate.coreDataStack
+    }
+}
+
+protocol UniqueCell {
+    static var cellIdentifier : String { get set }
 }
 
