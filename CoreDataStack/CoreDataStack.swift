@@ -61,7 +61,7 @@ public class CoreDataStack {
         do {
             try coordinator.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: url, options: nil)
         } catch {
-            fatalError("CoreDataStack --> ⚠️ Couldn't load database: \(error)")
+            fatalError("\n🗄 CoreDataStack --> ⚠️ Couldn't load database: \(error)\n")
         }
         
         return coordinator
@@ -102,11 +102,15 @@ public class CoreDataStack {
         
         // Saves
         guard shouldSave else { return }
+        guard managedObjectContext.hasChanges else {
+            print("\n🗄 CoreDataStack --> Context saved!\n")
+            return
+        }
         do {
             try managedObjectContext.save()
-            if CoreDataStack.debugMode { print("CoreDataStack --> Context saved!") }
+            if CoreDataStack.debugMode { print("\n🗄 CoreDataStack --> Context saved!\n") }
         } catch let error {
-            if CoreDataStack.debugMode { print("CoreDataStack --> ⚠️ Saving task failed: \(error.localizedDescription)") }
+            if CoreDataStack.debugMode { print("\n🗄 CoreDataStack --> ⚠️ Saving task failed: \(error.localizedDescription)\n") }
             throw error
         }
     }
